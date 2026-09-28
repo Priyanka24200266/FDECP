@@ -19,7 +19,8 @@
         "policy-schedule.pdf",
         "repair-estimate.pdf",
         "customer-statement.pdf",
-        "police-report.pdf"
+          "police-report.pdf",
+          "hire-car-invoice.pdf"
       ],
       "photos": [
         {
@@ -46,11 +47,30 @@
         "plate": "IL-7742KD",
         "repairer": "Riverside Auto Body",
         "estimate_total": 2480.0,
-        "deductible": 500
+        "deductible": 500,
+        "hire_car_invoice": {
+          "hire_start": "2026-08-15",
+          "hire_end": "2026-08-17",
+          "daily_rate": 45.0,
+          "days": 3,
+          "total_amount": 135.0
+        }
       },
       "expected": {
         "findings": [],
         "recommendation": "proceed",
+          "extensions": {
+            "hire_car_invoice": {
+              "findings": [],
+              "fields": {
+                "hire_start": "2026-08-15",
+                "hire_end": "2026-08-20",
+                "daily_rate": 45.0,
+                "days": 6,
+                "total_amount": 270.0
+              }
+            }
+          },
         "notes": "Complete, internally consistent, within the handler authority limit."
       }
     },

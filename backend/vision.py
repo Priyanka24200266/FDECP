@@ -44,17 +44,14 @@ PHOTO_SCHEMA = {
     },
 }
 
-# TODO 2: write the instructions for assessing a damage photograph.
-#
-# The assessment feeds a rule that compares the repair estimate against what the photo
-# actually shows, so it must be conservative and specific:
-#   - describe only what is visible; never infer a cause or who was at fault
-#   - never guess at damage that is out of frame
-#   - say "None visible" when there is no damage in the image
-#   - map the visible damage to one of the indicative bands in CIP-CLM-220 section 4
-#     (read reference/policies/CIP-CLM-220 - the bands are in the table in section 4)
 INSTRUCTIONS = (
-    "TODO: write the photograph assessment instructions here."
+    "You are assessing a photograph submitted with a motor insurance claim. Describe only what "
+    "is visible in this image. Do not infer a cause, do not speculate about fault, and do not "
+    "guess at damage that is out of frame. Use 'None visible' when the image shows no damage. "
+    "Indicative bands from CIP-CLM-220 section 4 are: light scuff or scratch on one panel "
+    "300-900; shallow dent with paint damage 600-1600; bumper replacement with sensors "
+    "1500-3200; hail damage across panels 2500-7000; front or rear end collision with several "
+    "panels and lighting units 3000-8000."
 )
 
 

@@ -7,7 +7,7 @@ export default defineConfig({
     host: true,          // so the workspace is reachable from the lab VM's browser
     port: 5173,
     proxy: {
-      '/api': { target: 'http://127.0.0.1:8000', changeOrigin: true },
+      '/api': { target: process.env.VITE_API_URL || 'http://127.0.0.1:8080', changeOrigin: true },
     },
   },
 })

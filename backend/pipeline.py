@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import concurrent.futures
 import json
+import logging
 import pathlib
 import re
 import sys
@@ -22,7 +23,10 @@ import claims_agent
 import config as cfg
 import validation
 import vision
+import verification
 from content_understanding import ContentUnderstandingClient
+
+logger = logging.getLogger(__name__)
 
 def _find_repo_dir(name: str) -> pathlib.Path:
     """Locate a top-level folder by walking up from this file.
@@ -108,8 +112,22 @@ def process_claim(claim_dir: pathlib.Path, agent_name: str | None = None,
         doc_type, path = item
         if doc_type not in analyzers.ANALYZERS:
             return doc_type, None
-        result = cu.analyze_file(analyzer_id(doc_type), str(path))
-        return doc_type, cu.flatten_fields(result)
+        try:
+            attempts = 2 if doc_type == "policy_schedule" else 1
+            fields = {}
+            for _ in range(attempts):
+                result = cu.analyze_file(analyzer_id(doc_type), str(path))
+                fields = cu.flatten_fields(result)
+                if doc_type != "policy_schedule" or all(
+                    fields.get(name, {}).get("value") for name in ("effective_from", "effective_to")
+                ):
+                    break
+            return doc_type, fields
+        except (OSError, ValueError, RuntimeError) as exc:
+            logger.exception("document extraction failed", extra={"claim_id": claim_id,
+                                                                   "document": path.name,
+                                                                   "document_type": doc_type})
+            return doc_type, None
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
         for doc_type, fields in pool.map(extract_one, documents):
@@ -119,8 +137,18 @@ def process_claim(claim_dir: pathlib.Path, agent_name: str | None = None,
     # ---- assess photographs, in parallel
     photo_assessments: list[dict[str, Any]] = []
     if photos:
+        def assess_one(path: pathlib.Path) -> dict[str, Any] | None:
+            try:
+                return vision.analyse_photo(path)
+            except (OSError, ValueError, RuntimeError):
+                logger.exception("photo assessment failed", extra={"claim_id": claim_id,
+                                                                     "photo": path.name})
+                return None
+
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
-            photo_assessments = list(pool.map(vision.analyse_photo, photos))
+            for path, assessment in zip(photos, pool.map(assess_one, photos)):
+                if assessment:
+                    photo_assessments.append(assessment)
 
     # ---- claims history, when supplied
     history_pdf = claim_dir / "claims-history.pdf"
@@ -129,6 +157,7 @@ def process_claim(claim_dir: pathlib.Path, agent_name: str | None = None,
     # ---- validate
     findings = validation.run_all(extracted, present_types, photo_assessments, claims_history)
     rule_recommendation = validation.recommend(findings)
+    verification_items = verification.build_verification_items(extracted)
 
     package = {
         "claim_id": claim_id,
@@ -139,6 +168,8 @@ def process_claim(claim_dir: pathlib.Path, agent_name: str | None = None,
         "photo_assessments": photo_assessments,
         "claims_history_count": len(claims_history),
         "findings": findings,
+        "verification_items": verification_items,
+        "verification_status": "awaiting_verification" if verification_items else "ready",
         "rule_recommendation": rule_recommendation,
     }
 

@@ -39,6 +39,7 @@ export default function ClaimDetail({ claimId, onDecided }) {
   const findings = [...(claim.findings || [])].sort(
     (a, b) => (SEVERITY_ORDER[a.severity] ?? 3) - (SEVERITY_ORDER[b.severity] ?? 3),
   )
+  const duplicateNeedsReview = claim.status === 'duplicate_pending'
 
   return (
     <main className="detail">
@@ -51,6 +52,16 @@ export default function ClaimDetail({ claimId, onDecided }) {
         <h3>Claim summary</h3>
         <p className="summary">{review.summary || '—'}</p>
       </section>
+
+      {claim.duplicate_of && (
+        <section className="duplicate-detail">
+          <h3>{duplicateNeedsReview ? 'Potential duplicate · handler review required' : 'Confirmed duplicate'}</h3>
+          <p>This submission matches <strong>{claim.duplicate_of}</strong> on policy number, vehicle identity, and date of loss.</p>
+          {duplicateNeedsReview && <p className="muted">The system has not made a final decision. Review the evidence below, then choose the handler outcome.</p>}
+        </section>
+      )}
+
+      {duplicateNeedsReview && <DecisionPanel claim={claim} onDecided={() => { load(); onDecided?.() }} />}
 
       <section>
         <h3>Findings ({findings.length})</h3>
@@ -74,6 +85,21 @@ export default function ClaimDetail({ claimId, onDecided }) {
           </div>
         ))}
       </section>
+
+      {claim.verification_items?.length > 0 && (
+        <section className="verification-section">
+          <h3>Verification required before decision</h3>
+          <p className="muted">These fields can affect the assessment and were extracted with low confidence.</p>
+          <ul>
+            {claim.verification_items.map((item) => (
+              <li key={item.id}>
+                <strong>{item.field.replaceAll('_', ' ')}</strong>: {String(item.value ?? 'missing')} from {item.document.replaceAll('_', ' ')}
+                <span className="muted"> · confidence {Number(item.confidence).toFixed(2)}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {review.findings_explained?.length > 0 && (
         <section>
@@ -169,7 +195,7 @@ export default function ClaimDetail({ claimId, onDecided }) {
         </section>
       )}
 
-      <DecisionPanel claim={claim} onDecided={() => { load(); onDecided?.() }} />
+      {!duplicateNeedsReview && <DecisionPanel claim={claim} onDecided={() => { load(); onDecided?.() }} />}
     </main>
   )
 }

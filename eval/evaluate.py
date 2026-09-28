@@ -68,8 +68,22 @@ def score_claim(claim_id: str, truth: dict, result: dict) -> dict:
         else:
             field_errors.append(f"{doc}.{field}: expected {expected!r}, got {actual!r}")
 
+    extension_errors = []
+    extension_truth = truth.get("expected", {}).get("extensions", {})
+    for doc, spec in extension_truth.items():
+        for field, expected in spec.get("fields", {}).items():
+            actual = (extracted.get(doc, {}).get(field) or {}).get("value")
+            checked += 1
+            if norm(actual) == norm(expected):
+                matched += 1
+            else:
+                extension_errors.append(f"{doc}.{field}: expected {expected!r}, got {actual!r}")
+    field_errors.extend(extension_errors)
+
     # 2. findings
     expected_codes = set(truth["expected"]["findings"])
+    for spec in extension_truth.values():
+        expected_codes.update(spec.get("findings", []))
     actual_codes = {f["code"] for f in result.get("findings", []) if f["severity"] != "info"}
     missed = expected_codes - actual_codes
     spurious = actual_codes - expected_codes

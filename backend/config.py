@@ -4,10 +4,15 @@ from __future__ import annotations
 import os
 import re
 import sys
+from decimal import Decimal
+import logging
 
 from dotenv import load_dotenv
 
 load_dotenv()
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
+logging.basicConfig(level=getattr(logging, LOG_LEVEL, logging.INFO),
+                    format="%(asctime)s %(levelname)s %(name)s %(message)s")
 
 # Windows consoles default to cp1252; claim text contains characters it cannot encode.
 for _stream in (sys.stdout, sys.stderr):
@@ -48,9 +53,20 @@ CLAIM_TABLE = f"claims{ALIAS}"
 REVIEW_TABLE = f"review{ALIAS}"
 
 # Business rules (from the Contoso policy corpus - see CIP-CLM-200 and CIP-CLM-220)
-HANDLER_AUTHORITY_LIMIT = 5000.0
+HANDLER_AUTHORITY_LIMIT = Decimal("5000.00")
 CLAIM_FREQUENCY_THRESHOLD = 3                # claims in 12 months
 ENHANCED_REVIEW_REPAIRERS = ["Apex Collision Center", "Northgate Bodyworks"]
+LOW_CONFIDENCE_THRESHOLD = 0.60
+CRITICAL_VERIFICATION_FIELDS = {
+    "claim_form": {"policy_number", "date_of_loss", "loss_type", "vin", "damage_area"},
+    "policy_schedule": {"policy_number", "effective_from", "effective_to", "vin"},
+    "repair_estimate": {"total_amount", "vin", "damage_area"},
+    "hire_car_invoice": {"hire_start", "hire_end", "daily_rate", "days", "total_amount"},
+}
+HIRE_CAR_INVOICE_MAX_DAYS = 30
+MAX_UPLOAD_FILES = 20
+MAX_UPLOAD_BYTES = 15 * 1024 * 1024
+ALLOWED_UPLOAD_SUFFIXES = {".pdf", ".png", ".jpg", ".jpeg", ".webp"}
 
 REQUIRED_DOCUMENTS = {
     "Collision":       ["claim_form", "policy_schedule", "repair_estimate", "customer_statement", "damage_photo"],

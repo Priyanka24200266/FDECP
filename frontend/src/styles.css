@@ -36,8 +36,36 @@ header h1 { margin: 0; font-size: 22px; color: var(--brand); letter-spacing: -0.
 
 .layout { display: grid; grid-template-columns: 320px 1fr; gap: 20px; align-items: start; }
 
+.upload-panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 18px; }
+.upload-panel h2 { margin: 0; font-size: 15px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--brand); }
+.upload-panel p { margin: 3px 0 10px; }
+.upload-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.upload-form input[type="text"], .upload-form input:not([type]) { min-width: 220px; }
+.upload-form input { padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; font: inherit; }
+.banner.success { background: #e5f4ea; color: var(--ok-green); border: 1px solid #b9dec5; }
+.banner.loading { background: #eef1f6; color: var(--brand); border: 1px solid #d6dce7; }
+
+.metrics-overview { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 18px; }
+.metrics-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; }
+.metrics-heading h2 { margin: 0; font-size: 15px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--brand); }
+.metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.metric { display: grid; gap: 2px; text-align: left; background: #f7f8fa; color: var(--ink); border: 1px solid var(--line); padding: 9px 10px; }
+.metric-label { color: var(--muted); font-size: 12px; }
+.metric strong { font-size: 20px; }
+.metric small { color: var(--muted); }
+
 /* ---------------------------------------------------------------- claim list */
 .claim-list h2, .detail h2 { font-size: 15px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin: 0 0 10px; }
+.claim-section { margin-bottom: 18px; }
+.claim-section h2 { display: flex; justify-content: space-between; }
+.claim-section h2 span { font-size: 12px; }
+.section-toggle { width: 100%; display: flex; justify-content: space-between; background: transparent; color: var(--muted); padding: 0 0 8px; text-transform: uppercase; letter-spacing: 0.05em; font-size: 15px; }
+.empty-section { padding: 0 4px; }
+.full-button { width: 100%; margin-top: 8px; }
+.duplicate-warning { color: var(--critical); font-size: 13px; font-weight: 600; margin-top: 8px; }
+.processed-label { color: var(--ok-green); font-size: 13px; margin-top: 6px; }
+.duplicate-detail { border: 1px solid #e6c56b; background: #fffaf0; padding: 10px 12px; }
+.duplicate-detail + .decision { border-top-color: #e6c56b; background: #fffdf7; padding: 14px; }
 .claim-card {
   background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
   padding: 12px 14px; margin-bottom: 10px; cursor: pointer;
@@ -108,6 +136,9 @@ ul.evidence li, ul.citations li { margin-bottom: 4px; }
   font: inherit; margin-bottom: 8px;
 }
 .decision-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+.verification-checklist { display: grid; gap: 8px; border: 1px solid #e6c56b; background: #fffaf0; padding: 10px; margin: 8px 0 12px; }
+.verification-checklist label { font-size: 13px; }
+.verification-checklist input { margin-right: 8px; }
 button {
   background: var(--brand); color: #fff; border: 0; border-radius: 8px;
   padding: 8px 14px; font: inherit; font-weight: 600; cursor: pointer;
@@ -115,6 +146,7 @@ button {
 button:hover { filter: brightness(1.08); }
 button:disabled { opacity: 0.5; cursor: default; }
 button.danger { background: var(--critical); }
+button.secondary { background: #eef1f6; color: var(--ink); }
 
 .banner { border-radius: 8px; padding: 10px 12px; margin: 10px 0; }
 .banner.error { background: #fdecea; color: var(--critical); border: 1px solid #f5c6c2; }
